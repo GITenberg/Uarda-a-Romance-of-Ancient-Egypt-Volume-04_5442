@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: HbSnpKcN0zW4idY3RULpk9dPq7C+vyszMJNO/RruQwJc83my3s0jTcKrEtQ7VwFudA4TRZDG1TzxeFXRIVRaiwkMB2vGYQ9Azii4+R2M6Wkr5OIQJuNWC8EQQdm77nV5zATZiAEHagd6FO1ZRwzE1puAINZ3REthOITY8WMFHu6B4JEvy5KM4ooEk3eoG7cQf4ntCFGLTiRcmjmcRex1hW1XGHniizy6uLk8I1zR1TiSqMNnaiFtr7oF6s7s5cJbjiKJJFqKCylCKVxsH0M5E6/maGoY0Zq6vbZYGDEhX3HYld+rXMbnAm3NfNGxHQ6bFfiOwOYQnxRgsc9hNI+5aqePhPH/TfsSaO4hCGexr3uu7ugZH/3yRJLkB1gLoARaXvsLA/1IfVWYojJMOXOyBs0Fb8Zcb8he10/lg8zsholha4UIDyQ9kNF/zIeSS7vG97X/cf4jlsUIPq4Nlda+BEUOsAXWkh6ur2ikK0VRV499LdCpZgfoJ63zDpI0kihvPI0bYnUj98IV3lUScgPxBO76yCl3zynNUbNRU62bwmh45LJwPJnAfXxT48kzPagKl6NCvfLUNJjxJmVw5DDs2ZOj/sfOYYlc7+poT1/Fxat63p3HJ2UHch3telHgFkJIK4PxcSLqmPVXc934gbrfBZMvy6I9togsk+9aNpuEbMo=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Uarda-a-Romance-of-Ancient-Egypt-Volume-04_5442
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
